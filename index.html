@@ -1,0 +1,287 @@
+<!--
+Google IO 2012/2013 HTML5 Slide Template
+
+Authors: Eric Bidelman <ebidel@gmail.com>
+         Luke Mahé <lukem@google.com>
+
+URL: https://code.google.com/p/io-2012-slides
+-->
+<!DOCTYPE html>
+<html>
+<head>
+  <title></title>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="chrome=1">
+  <!--<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">-->
+  <!--<meta name="viewport" content="width=device-width, initial-scale=1.0">-->
+  <!--This one seems to work all the time, but really small on ipad-->
+  <!--<meta name="viewport" content="initial-scale=0.4">-->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <link rel="stylesheet" media="all" href="theme/css/default.css">
+  <link rel="stylesheet" media="only screen and (max-device-width: 480px)" href="theme/css/phone.css">
+  <base target="_blank"> <!-- This amazingness opens all links in a new tab. -->
+  <script data-main="js/slides" src="js/require-1.0.8.min.js"></script>
+  <style>
+  	.thank-you-slide article + p > span {
+  		display: inline-block;
+  		width: 115px;
+  	}
+  	.thank-you-slide article + p > a {
+  		color: white;
+  		border-bottom: none;
+  	}
+  	slides > slide:not(.nobackground):before {
+  		content: attr(data-hashtag) !important;
+  	}
+    .huge {
+        display: block;
+    }
+    .huge li:before {
+        content: '→ ';
+        color: rgba(255,0,0,0.5);
+    }
+    .huge li {
+        font-size: 48px;
+        line-height: 2em;
+    }
+    .small {
+        font-size: 0.5em;
+        line-height: 1.5em;
+    }
+  </style>
+</head>
+<body style="opacity: 0">
+
+<slides class="layout-widescreen">
+
+  <slide class="logoslide nobackground">
+    <article class="flexbox vcenter">
+      <span><img src="images/google_developers_logo.png"></span>
+    </article>
+  </slide>
+
+  <slide class="title-slide segue nobackground">
+    <aside class="gdbar"><img src="images/google_developers_icon_128.png"></aside>
+    <!-- The content of this hgroup is replaced programmatically through the slide_config.json. -->
+    <hgroup class="auto-fadein">
+      <h1>Since Go1</h1>
+      <h2>... it’s been 4 years</h2>
+      <p>
+      	Alexander “surma” Surma<br>
+      	nuboLAB, GDG Berlin Golang<br>
+      	2013-12-12
+      </p>
+    </hgroup>
+  </slide>
+<slide>
+    <hgroup>
+        <h2>Dates</h2>
+    </hgroup>
+    <article>
+        <ol class="huge">
+            <li><b>Go 1.0</b>: 2012-03-28</li>
+            <li><b>Go 1.1</b>: 2013-05-13</li>
+            <li><b>Go 1.2</b>: 2013-12-04</li>
+        </ol>
+        They are now striving for a 6 month release cycle. 3 months iteration, 3 monts testing.
+        Therefore, code freeze for Go 1.3 is on 2014-03-01, <b>release on 2014-06-01</b>.
+    </article>
+</slide>
+<slide>
+    <hgroup>
+        <h2>Race detector</h2>
+    </hgroup>
+    <article>
+        <ul>
+            <li>Compilation: <code>go run -race program.go</code></li>
+            <li>Specially crafted, CPU-hungry binary</li>
+            <li>Algorithm has been implemented/used by the Chrome Development Team</li>
+            <li>Detects concurrent access to shared variables</li>
+        </ul>
+        <pre class="prettyprint small" data-lang="go">
+var sharedVariable = 1
+
+func worker() {
+    for {
+        sharedVariable += 1
+        time.Sleep(100 * time.Millisecond)
+    }
+}
+
+func main() {
+    go worker()
+    for {
+        fmt.Printf("> %d\n", sharedVariable)
+        time.Sleep(1 * time.Second)
+    }
+}</pre>
+    </article>
+</slide>
+<slide>
+    <hgroup>
+        <h2>Preemptive Scheduling</h2>
+    </hgroup>
+    <article>
+        <ul>
+            <li>Schedular was cooperative (I/O, channel sends, time.Sleep(),…)</li>
+            <li><code>for {}</code> could starve all other goroutines</li>
+            <li>The scheduler is invoked occasionally upon entry to a function</li>
+            <li><code>for {}</code> can still starve all other goroutines. But not in realistic use-cases.</li>
+        </ul>
+    </article>
+</slide>
+<slide>
+    <hgroup>
+        <h2>First-class C++ bindings</h2>
+    </hgroup>
+    <article>
+        <ul>
+            <li>With <code>cgo</code> you can call C code from Go</li>
+            <li>For C++ you had to write a C-Wrapper as a library</li>
+            <li><code>cgo</code> now understands C++</li>
+            <li>v8-Bindings anyone?</li>
+        </ul>
+<pre class="prettyprint small">
+package main
+
+// int fortytwo()
+// {
+//      return 42;
+// }
+import "C"
+import "fmt"
+
+func main() {
+    fmt.Println(int(C.fortytwo()))
+    // Output: 42
+} </pre>
+    </article>
+</slide>
+<slide>
+    <hgroup>
+        <h2>Test coverage</h2>
+    </hgroup>
+    <article>
+        Fast way:
+        <pre class="prettyprint" data-lang="bash">
+$ go test -cover *.go
+ok      command-line-arguments  0.038s  coverage: 43.2% of statements </pre>
+        Details:
+        <pre class="prettyprint small" data-lang="bash">
+$ go test -coverprofile=c.out *.go
+$ go tool cover -func=c.out
+github.com/voxelbrain/auth/authenticationservice.go:    init                            100.0%
+github.com/voxelbrain/auth/authenticationservice.go:    Verify                          100.0%
+github.com/voxelbrain/auth/authenticationservice.go:    verifyDataEndpoints             83.3%
+github.com/voxelbrain/auth/authenticationservice.go:    verifyAuthenticationEndpoints   82.4%
+github.com/voxelbrain/auth/authenticationservice.go:    AuthenticationServiceHandler    0.0%
+// ...
+total:                                                  (statements)                    43.2% </pre>
+    </article>
+</slide>
+<slide>
+    <hgroup>
+        <h2>Test coverage</h2>
+    </hgroup>
+    <article>
+        Web goodness:
+        <pre class="prettyprint" data-lang="bash">
+$ go tool cover -html=c.out -o coverage.html </pre>
+        <img src="imgs/gocovhtml.png" class="reflect" style="width: 60%;">
+    </article>
+</slide>
+<slide>
+    <hgroup>
+        <h2>Method values</h2>
+    </hgroup>
+    <article>
+        Prelude:
+        <pre class="prettyprint" data-lang="go">
+    type BinaryFunc(a, b int) int
+    var f BinaryFunc</pre>
+        The old way:
+        <pre class="prettyprint" data-lang="go">
+    f = func(a, b int) int {
+        return someStruct.BinaryMethod(a, b)
+    } </pre>
+        Now:
+        <pre class="prettyprint" data-lang="go">
+    f = someStruct.BinaryMethod</pre>
+    </article>
+</slide>
+<slide>
+    <hgroup>
+        <h2>Small things</h2>
+    </hgroup>
+    <article>
+        <ul>
+            <li><code>text/template</code> now has <code>eq, ne, lt, gt, …</code></li>
+            <li>Easy cross-compilation</li>
+            <li>freebsd/arm, netbsd/386, netbsd/amd64, netbsd/arm, openbsd/386 and openbsd/amd64 </li>
+            <li>Performance</li>
+        </ul>
+        <pre class="prettyprint" data-lang="go">
+fmt.Sprintf("%[3]c %[1]c %c\n", 'a', 'b', 'c')</pre>
+    </article>
+</slide>
+<slide class="segue dark nobackground">
+    <aside class="gdbar"><img src="images/google_developers_icon_128.png"></aside>
+    <hgroup class="auto-fadein">
+        <h2>Go 1.3?</h2>
+    </hgroup>
+</slide>
+<slide>
+    <hgroup>
+        <h2>Incoming changes</h2>
+    </hgroup>
+    <article>
+        <ul>
+            <li><code>os/fsnotify</code></li>
+            <li><code>cgo</code>: Objective-C support</li>
+            <li>Complete linker overhaul</li>
+            <li>runtime: 100% precise garbage collection</li>
+            <li>nacl/amd64p32, nacl/386, darwin/arm? android/arm?</li>
+            <li>runtime: shared library support?</li>
+        </ul>
+    </article>
+</slide>
+
+  <slide class="thank-you-slide segue nobackground">
+    <aside class="gdbar right"><img src="images/google_developers_icon_128.png"></aside>
+    <article class="flexbox vleft auto-fadein">
+      <h2>&lt;Thank You!&gt;</h2>
+      <p>Questions?</p>
+    </article>
+        <p class="auto-fadein">
+          <span>email</span><a href="mailto:a.surma@nubolab.org">a.surma@nubolab.org</a><br>
+          <span>g+</span><a href="http://plus.google.com/+AlexanderSurma">+AlexanderSurma</a><br>
+          <span>twitter</span><a href="http://twitter.com/surmair">surmair</a><br>
+          <span>github</span><a href="http://github.com/surma">surma</a><br>
+        </p>
+  </slide>
+
+  <slide class="logoslide dark nobackground">
+    <article class="flexbox vcenter">
+      <span><img src="images/google_developers_logo_white.png"></span>
+    </article>
+  </slide>
+
+  <slide class="backdrop"></slide>
+
+ </slides>
+
+
+<script>
+	var slides = document.querySelectorAll("slides > slide:not(.nobackground)");
+	for(var i in slides) {
+		if(slides[i].setAttribute) {
+			slides[i].setAttribute('data-hashtag', '#golang');
+		}
+	}
+</script>
+<!--[if IE]>
+  <script src="http://ajax.googleapis.com/ajax/libs/chrome-frame/1/CFInstall.min.js"></script>
+  <script>CFInstall.check({mode: 'overlay'});</script>
+<![endif]-->
+</body>
+</html>
